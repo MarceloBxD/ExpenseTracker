@@ -5,6 +5,7 @@ import { styles } from "./styles";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
 import IconButton from "../../components/UI/IconButton";
+import { DUMMY_EXPENSES } from "../../components/ExpensesOutput";
 
 type ManageExpensesProps = NativeStackScreenProps<
   RootStackParamList,
@@ -14,6 +15,8 @@ type ManageExpensesProps = NativeStackScreenProps<
 export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
   const expenseId = route.params?.expenseId;
   const isEditing = !!expenseId;
+
+  function handleDeleteItem(expenseId: string) {}
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,7 +28,7 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
           }}
         >
           {isEditing ? (
-            <IconButton icon="save" size={24} color="#fff" />
+            <IconButton icon="save-outline" size={24} color="#fff" />
           ) : (
             <IconButton icon="add" size={24} color="#fff" />
           )}
@@ -36,7 +39,14 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
 
   return (
     <View style={styles.container}>
-      <Text>Manage Expenses</Text>
+      {isEditing && (
+        <IconButton
+          onPress={handleDeleteItem.bind(null, expenseId)}
+          icon="trash-outline"
+          size={24}
+          color="#000"
+        />
+      )}
     </View>
   );
 };

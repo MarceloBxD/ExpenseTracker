@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
 import { RootStackParamList } from "../../App";
 
-type ItemProps = {
+export type ItemProps = {
   id: string;
   description: string;
   amount: number;

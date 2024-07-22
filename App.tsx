@@ -18,6 +18,7 @@ export type RootStackParamList = {
   ManageExpenses: {
     expenseId: string;
   };
+  AllExpenses: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,7 +50,7 @@ const ExpensesOverview = () => {
     >
       <Tab.Screen
         options={{
-          title: "Totais",
+          title: "Despesas Totais",
           tabBarLabel: "Todas as Despesas",
           tabBarIcon: ({ color }) => (
             <Ionicons name="wallet-outline" size={24} color={color} />
