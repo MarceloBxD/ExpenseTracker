@@ -1,10 +1,16 @@
 export interface Expenses {
-  id: number;
-  title: string;
+  id: string;
+  description: string;
   amount: number;
-  date: string;
-  category: string;
-  method: "credit" | "debit" | "cash" | "pix" | "transfer" | "check";
+  date: Date;
 }
 
-export const filterRecentExpenses = (expenses: Expenses[]) => {};
+export const filterRecentExpenses = (expenses: Expenses[]) => {
+  const today = new Date();
+  const minusSevenDays = new Date(today);
+  minusSevenDays.setDate(today.getDate() - 7);
+
+  return expenses.filter((expense) => {
+    return expense.date >= minusSevenDays;
+  });
+};

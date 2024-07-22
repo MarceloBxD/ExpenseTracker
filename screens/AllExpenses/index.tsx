@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "./styles";
 import { StackParamList } from "../../types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import ExpensesOutput, {
+  DUMMY_EXPENSES,
+} from "../../components/ExpensesOutput";
 
 type AllExpensesProps = {
   navigation: NativeStackNavigationProp<StackParamList, "AllExpenses">;
@@ -11,15 +14,10 @@ type AllExpensesProps = {
 export const AllExpenses = ({ navigation }: AllExpensesProps) => {
   return (
     <View style={styles.container}>
-      <Text>All Expenses</Text>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate("ManageExpenses");
-        }}
-        style={{ marginTop: 20 }}
-      >
-        <Text>Press me!</Text>
-      </TouchableOpacity>
+      <ExpensesOutput
+        expenses={DUMMY_EXPENSES}
+        expensesPeriod="Despesas Totais"
+      />
     </View>
   );
 };
