@@ -13,7 +13,7 @@ interface ButtonProps {
   children: ReactNode;
   onPress: () => void;
   mode?: "flat" | "default";
-  style?: PressableProps["style"];
+  style?: ViewProps["style"];
 }
 
 export default function Button({
@@ -25,12 +25,14 @@ export default function Button({
   return (
     <View style={style}>
       <Pressable
-        style={({ pressed }) => {
-          pressed && styles.pressed;
-        }}
+        style={({ pressed }) => [
+          styles.button,
+          mode === "flat" && styles.flat,
+          pressed && styles.pressed,
+        ]}
         onPress={onPress}
       >
-        <View style={[styles.button, mode === "flat" && styles.flat]}>
+        <View>
           <Text style={[styles.buttonText, mode === "flat" && styles.flatText]}>
             {children}
           </Text>
