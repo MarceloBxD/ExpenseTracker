@@ -1,11 +1,13 @@
 import React, { useLayoutEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { styles } from "./styles";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
 import IconButton from "../../components/UI/IconButton";
 import { DUMMY_EXPENSES } from "../../components/ExpensesOutput";
+import { GlobalStyles } from "../../styles/GlobalStyles";
+import Button from "../../components/UI/Button";
 
 type ManageExpensesProps = NativeStackScreenProps<
   RootStackParamList,
@@ -37,15 +39,29 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
     });
   }, [navigation, isEditing]);
 
+  function cancelHandler() {}
+
+  function submitHandler() {}
+
   return (
     <View style={styles.container}>
+      <View style={styles.buttonsContainer}>
+        <Button style={styles.button} mode="flat" onPress={cancelHandler}>
+          Cancelar
+        </Button>
+        <Button style={styles.button} onPress={submitHandler}>
+          {isEditing ? "Salvar" : "Adicionar"}
+        </Button>
+      </View>
       {isEditing && (
-        <IconButton
-          onPress={handleDeleteItem.bind(null, expenseId)}
-          icon="trash-outline"
-          size={24}
-          color="#000"
-        />
+        <View style={styles.deleteContainer}>
+          <IconButton
+            onPress={handleDeleteItem.bind(null, expenseId)}
+            icon="trash-outline"
+            size={24}
+            color={GlobalStyles.colors.error50}
+          />
+        </View>
       )}
     </View>
   );
