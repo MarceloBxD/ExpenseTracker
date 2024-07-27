@@ -23,4 +23,16 @@ export const styles = StyleSheet.create({
     marginHorizontal: 8,
     minWidth: 120,
   },
+  label: {
+    color: GlobalStyles.colors.primary100,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: GlobalStyles.colors.primary700,
+    color: GlobalStyles.colors.primary100,
+    padding: 8,
+    marginBottom: 16,
+    borderRadius: 8,
+  },
 });

@@ -1,17 +1,18 @@
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 import { styles } from "./styles";
-import ExpensesOutput, {
-  DUMMY_EXPENSES,
-} from "../../components/ExpensesOutput";
+
 import { filterRecentExpenses } from "../../utils/filterRecentExpenses";
+import { useExpenses } from "../../contexts/ExpensesContext";
+import ExpensesOutput from "../../components/ExpensesOutput";
 
 export const RecentExpenses = () => {
-  console.log("DUMMY", DUMMY_EXPENSES);
-  const [recentExpenses, setRecentExpenses] = React.useState(DUMMY_EXPENSES);
+  const { expenses } = useExpenses();
+
+  const [recentExpenses, setRecentExpenses] = useState(expenses);
 
   useLayoutEffect(() => {
-    setRecentExpenses(filterRecentExpenses(DUMMY_EXPENSES));
+    setRecentExpenses(filterRecentExpenses(expenses));
   }, []);
 
   return (

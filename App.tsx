@@ -12,6 +12,7 @@ import { AllExpenses } from "./screens/AllExpenses";
 import { RecentExpenses } from "./screens/RecentExpenses";
 import { GlobalStyles } from "./styles/GlobalStyles";
 import IconButton from "./components/UI/IconButton";
+import { ExpensesProvider } from "./contexts/ExpensesContext";
 
 export type RootStackParamList = {
   ExpensesOverview: undefined;
@@ -78,31 +79,33 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: GlobalStyles.colors.primary500,
-            },
-            headerTintColor: GlobalStyles.colors.white,
-          }}
-        >
-          <Stack.Screen
-            options={{
-              headerShown: false,
+      <ExpensesProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: GlobalStyles.colors.primary500,
+              },
+              headerTintColor: GlobalStyles.colors.white,
             }}
-            name="ExpensesOverview"
-            component={ExpensesOverview}
-          />
-          <Stack.Screen
-            options={{
-              presentation: "modal",
-            }}
-            name="ManageExpenses"
-            component={ManageExpenses}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="ExpensesOverview"
+              component={ExpensesOverview}
+            />
+            <Stack.Screen
+              options={{
+                presentation: "modal",
+              }}
+              name="ManageExpenses"
+              component={ManageExpenses}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ExpensesProvider>
     </>
   );
 }
