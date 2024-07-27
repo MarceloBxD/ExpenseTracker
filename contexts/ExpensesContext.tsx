@@ -28,7 +28,7 @@ export const ExpensesProvider = ({
         const id = new Date().toString() + Math.random().toString();
         return [...state, { ...action.payload, id }];
       case "DELETE_EXPENSE":
-        return state.filter((expense) => expense.id !== action.payload.id);
+        return state.filter((expense) => expense.id !== action.payload);
       case "UPDATE_EXPENSE":
         const toBeUpdatedIndex = state.findIndex(
           (expense) => expense.id === action.payload.id
@@ -103,6 +103,7 @@ export const ExpensesProvider = ({
   }
 
   function deleteExpense(id: string) {
+    console.log("id", id);
     dispatch({ type: "DELETE_EXPENSE", payload: id });
   }
 

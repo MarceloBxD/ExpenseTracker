@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -26,8 +26,30 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
 
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
 
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
+  const itemToEdit = expenses.find((item) => item.id === expenseId);
+
+  const [inputValues, setInputValues] = useState({
+    description: "",
+    amount: "",
+  });
+
+  useEffect(() => {
+    if (isEditing && itemToEdit) {
+      setInputValues({
+        description: itemToEdit.description,
+        amount: itemToEdit.amount.toString(),
+      });
+    }
+  }, [isEditing, itemToEdit]);
+
+  function handleInputChange(inputIdentifier: string, inputValue: string) {
+    setInputValues((prev) => {
+      return {
+        ...prev,
+        [inputIdentifier]: inputValue,
+      };
+    });
+  }
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,14 +71,18 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
   }, [navigation, isEditing]);
 
   function handleDeleteItem(expenseId: string) {
+    console.log("expenseId", expenseId);
+
     deleteExpense(expenseId);
     navigation.goBack();
   }
 
   function handleAddExpense() {
+    if (!inputValues.description || !inputValues.amount) return;
+
     addExpense({
-      description,
-      amount: +amount,
+      description: inputValues.description,
+      amount: +inputValues.amount,
       date: new Date(),
     });
     navigation.goBack();
@@ -64,8 +90,8 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
 
   function handleUpdateExpense() {
     updateExpense(expenseId, {
-      description,
-      amount: +amount,
+      description: inputValues.description,
+      amount: +inputValues.amount,
       date: new Date(),
     });
     navigation.goBack();
@@ -79,8 +105,8 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
     <View style={styles.container}>
       <Text style={styles.label}>Descrição</Text>
       <TextInput
-        value={description}
-        onChangeText={(text) => setDescription(text)}
+        value={inputValues.description}
+        onChangeText={handleInputChange.bind(this, "description")}
         multiline
         numberOfLines={4}
         keyboardType="ascii-capable"
@@ -88,8 +114,8 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
       />
       <Text style={styles.label}>Valor</Text>
       <TextInput
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
+        value={inputValues.amount}
+        onChangeText={handleInputChange.bind(this, "amount")}
         keyboardType="numeric"
         style={styles.input}
       />
