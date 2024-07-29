@@ -55,7 +55,6 @@ export const ExpensesProvider = ({
   const DUMMY_EXPENSES: Expense[] = [];
 
   const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
-  const [expensesEmpty, setEmptyExpenses] = useState(false);
 
   const STORAGE_KEY = "expenses";
 
@@ -63,8 +62,9 @@ export const ExpensesProvider = ({
     const loadExpenses = async () => {
       try {
         const expenses = await AsyncStorage.getItem(STORAGE_KEY);
-        if (!expenses) {
-          return setEmptyExpenses(true);
+
+        if (expenses === null) {
+          return;
         }
 
         const parsedExpenses = JSON.parse(expenses).map((expense: Expense) => ({
@@ -120,7 +120,6 @@ export const ExpensesProvider = ({
     addExpense,
     deleteExpense,
     updateExpense,
-    expensesEmpty,
   };
 
   return (

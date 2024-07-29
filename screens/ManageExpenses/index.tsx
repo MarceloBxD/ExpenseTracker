@@ -1,5 +1,11 @@
 import React, { useLayoutEffect, useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  TextInputProps,
+} from "react-native";
 import { styles } from "./styles";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
@@ -122,6 +128,11 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
 
   const cancelHandler = () => {
     navigation.goBack();
+  };
+
+  type FormDataProps = {
+    label: string;
+    textInputConfig: TextInputProps;
   };
 
   return (

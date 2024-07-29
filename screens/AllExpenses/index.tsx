@@ -13,6 +13,8 @@ type AllExpensesProps = {
 export const AllExpenses = ({ navigation }: AllExpensesProps) => {
   const { expenses } = useExpenses();
 
+  
+
   return (
     <View style={styles.container}>
       <ExpensesOutput expenses={expenses} expensesPeriod="Despesas Totais" />

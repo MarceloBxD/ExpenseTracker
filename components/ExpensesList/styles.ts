@@ -37,4 +37,10 @@ export const styles = StyleSheet.create({
   pressed: {
     opacity: 0.75,
   },
+  noExpenses: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+    padding: 20,
+  },
 });

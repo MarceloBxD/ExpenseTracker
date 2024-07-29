@@ -56,11 +56,16 @@ const ExpenseItem = ({ item }: { item: ItemProps }) => {
 
 export default function ExpensesList({ expenses }: ExpensesProps) {
   return (
-    <FlatList
-      style={styles.flatList}
-      data={expenses}
-      renderItem={({ item }) => <ExpenseItem item={item} />}
-      keyExtractor={(item) => item.id}
-    />
+    <>
+      {expenses.length === 0 && (
+        <Text style={styles.noExpenses}>Nenhuma despesa cadastrada</Text>
+      )}
+      <FlatList
+        style={styles.flatList}
+        data={expenses}
+        renderItem={({ item }) => <ExpenseItem item={item} />}
+        keyExtractor={(item) => item.id}
+      />
+    </>
   );
 }
