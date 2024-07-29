@@ -15,15 +15,6 @@ type ManageExpensesProps = NativeStackScreenProps<
 
 const convertToNumber = (value: string) => parseFloat(value.replace(",", "."));
 
-const formatToBRL = (value: string) => {
-  const numberValue = convertToNumber(value);
-  if (isNaN(numberValue) || numberValue <= 0) return value;
-  return numberValue.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-};
-
 const verifyIfAmountIsABrlCurrency = (value: string) => {
   const regex = /^(\d{1,3}(\.\d{3})*|(\d+))(\,\d{2})?$/;
   return regex.test(value);

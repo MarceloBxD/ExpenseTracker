@@ -1,5 +1,11 @@
-import { createContext, useContext, useReducer } from "react";
-import { filterRecentExpenses } from "../utils/filterRecentExpenses";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Expense = {
   id: string;
@@ -30,6 +36,8 @@ export const ExpensesProvider = ({
         return [...state, { ...action.payload, id }];
       case "DELETE_EXPENSE":
         return state.filter((expense) => expense.id !== action.payload);
+      case "SET_EXPENSES":
+        return action.payload;
       case "UPDATE_EXPENSE":
         const toBeUpdatedIndex = state.findIndex(
           (expense) => expense.id === action.payload.id
@@ -47,6 +55,42 @@ export const ExpensesProvider = ({
   const DUMMY_EXPENSES: Expense[] = [];
 
   const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
+  const [expensesEmpty, setEmptyExpenses] = useState(false);
+
+  const STORAGE_KEY = "expenses";
+
+  useEffect(() => {
+    const loadExpenses = async () => {
+      try {
+        const expenses = await AsyncStorage.getItem(STORAGE_KEY);
+        if (!expenses) {
+          return setEmptyExpenses(true);
+        }
+
+        const parsedExpenses = JSON.parse(expenses).map((expense: Expense) => ({
+          ...expense,
+          date: new Date(expense.date),
+        }));
+
+        dispatch({ type: "SET_EXPENSES", payload: parsedExpenses });
+      } catch (e) {
+        console.error("Error loading expenses", e);
+      }
+    };
+
+    loadExpenses();
+  }, []);
+
+  useEffect(() => {
+    const saveExpenses = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(expensesState));
+      } catch (e) {
+        console.error("Error saving expenses", e);
+      }
+    };
+    saveExpenses();
+  }, [expensesState]);
 
   function addExpense(expenseData: Omit<Expense, "id">) {
     dispatch({ type: "ADD_EXPENSE", payload: expenseData });
@@ -76,6 +120,7 @@ export const ExpensesProvider = ({
     addExpense,
     deleteExpense,
     updateExpense,
+    expensesEmpty,
   };
 
   return (
