@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { GlobalStyles } from "../../styles/GlobalStyles";
 
@@ -10,6 +10,7 @@ import { styles } from "./styles";
 import { RootStackParamList } from "../../App";
 import { useExpenses } from "../../contexts/ExpensesContext";
 import { LoadingOverlay } from "../UI/LoadingOverlay";
+import ErrorOverlay from "../UI/ErrorOverlay";
 
 export type ItemProps = {
   id: string;
@@ -57,13 +58,16 @@ const ExpenseItem = ({ item }: { item: ItemProps }) => {
 };
 
 export default function ExpensesList({ expenses }: ExpensesProps) {
-  const { isFetching } = useExpenses();
+  const { isFetching, errorOverlay } = useExpenses();
 
   return (
     <>
       {isFetching && <LoadingOverlay />}
-      {expenses.length === 0 && (
+      {!errorOverlay.type && expenses.length === 0 && (
         <Text style={styles.noExpenses}>Nenhuma despesa cadastrada</Text>
+      )}
+      {errorOverlay.type !== "" && (
+        <ErrorOverlay action={errorOverlay.action} type={errorOverlay.type} />
       )}
       <FlatList
         style={styles.flatList}

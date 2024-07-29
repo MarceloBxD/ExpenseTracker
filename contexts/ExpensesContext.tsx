@@ -19,15 +19,21 @@ type Expense = {
   date: Date;
 };
 
+type ErrorOverlayProps = {
+  type: string;
+  action: () => void;
+};
+
 export const ExpensesContext = createContext({
   expenses: [] as Expense[],
-  addExpense: ({ description, amount, date }: Omit<Expense, "id">) => {},
+  addExpense: (expenseData: Omit<Expense, "id">) => {},
   deleteExpense: (id: string) => {},
-  updateExpense: (
-    id: string,
-    { description, amount, date }: Omit<Expense, "id">
-  ) => {},
+  updateExpense: (id: string, expenseData: Omit<Expense, "id">) => {},
   isFetching: false,
+  errorOverlay: {
+    type: "",
+    action: () => {},
+  } as ErrorOverlayProps,
 });
 
 export const ExpensesProvider = ({
@@ -58,10 +64,12 @@ export const ExpensesProvider = ({
     }
   }
 
-  const DUMMY_EXPENSES: Expense[] = [];
-
-  const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
+  const [expensesState, dispatch] = useReducer(expensesReducer, []);
   const [isFetching, setIsFetching] = useState(false);
+  const [errorOverlay, setErrorOverlay] = useState<ErrorOverlayProps>({
+    type: "",
+    action: () => {},
+  });
 
   useEffect(() => {
     const loadExpenses = async () => {
@@ -81,12 +89,23 @@ export const ExpensesProvider = ({
         }));
 
         dispatch({ type: "SET_EXPENSES", payload: loadedExpenses });
+        setErrorOverlay({
+          type: "",
+          action: () => {},
+        });
 
         setIsFetching(false);
       } catch (e) {
         console.error("Error loading expenses", e);
+        setErrorOverlay({
+          type: "LOAD",
+          action: loadExpenses,
+        });
+        dispatch({ type: "SET_EXPENSES", payload: [] });
         setIsFetching(false);
       }
+
+      errorOverlay.type !== "" && setIsFetching(false);
     };
 
     loadExpenses();
@@ -100,18 +119,15 @@ export const ExpensesProvider = ({
       setIsFetching(false);
     } catch (e) {
       console.error("Error adding expense", e);
+      setErrorOverlay({
+        type: "ADD",
+        action: () => addExpense(expenseData),
+      });
       setIsFetching(false);
     }
   }
 
-  async function updateExpense(
-    id: string,
-    expenseData: {
-      description: string;
-      amount: number;
-      date: Date;
-    }
-  ) {
+  async function updateExpense(id: string, expenseData: Omit<Expense, "id">) {
     try {
       setIsFetching(true);
       await updateExpenseFB(expenseData, id);
@@ -122,6 +138,10 @@ export const ExpensesProvider = ({
       setIsFetching(false);
     } catch (e) {
       console.error("Error updating expense", e);
+      setErrorOverlay({
+        type: "UPDATE",
+        action: () => updateExpense(id, expenseData),
+      });
       setIsFetching(false);
     }
   }
@@ -132,6 +152,10 @@ export const ExpensesProvider = ({
       dispatch({ type: "DELETE_EXPENSE", payload: id });
     } catch (e) {
       console.error("Error deleting expense", e);
+      setErrorOverlay({
+        type: "DELETE",
+        action: () => deleteExpense(id),
+      });
     }
   }
 
@@ -141,6 +165,7 @@ export const ExpensesProvider = ({
     deleteExpense,
     updateExpense,
     isFetching,
+    errorOverlay,
   };
 
   return (
