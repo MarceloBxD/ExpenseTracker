@@ -8,6 +8,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
 import { RootStackParamList } from "../../App";
+import { useExpenses } from "../../contexts/ExpensesContext";
+import { LoadingOverlay } from "../UI/LoadingOverlay";
 
 export type ItemProps = {
   id: string;
@@ -55,8 +57,11 @@ const ExpenseItem = ({ item }: { item: ItemProps }) => {
 };
 
 export default function ExpensesList({ expenses }: ExpensesProps) {
+  const { isFetching } = useExpenses();
+
   return (
     <>
+      {isFetching && <LoadingOverlay />}
       {expenses.length === 0 && (
         <Text style={styles.noExpenses}>Nenhuma despesa cadastrada</Text>
       )}

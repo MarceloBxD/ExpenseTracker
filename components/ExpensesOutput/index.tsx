@@ -15,7 +15,6 @@ type Props = {
   expensesPeriod: string;
 };
 
-
 export default function ExpensesOutput({ expenses, expensesPeriod }: Props) {
   console.log("filtrados", filterRecentExpenses(expenses));
   return (

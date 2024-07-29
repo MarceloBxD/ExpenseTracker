@@ -5,7 +5,12 @@ import {
   useReducer,
   useState,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  createExpense,
+  getExpenses,
+  updateExpenseFB,
+  deleteExpense as deleteExpenseFB,
+} from "../utils/https";
 
 type Expense = {
   id: string;
@@ -16,12 +21,13 @@ type Expense = {
 
 export const ExpensesContext = createContext({
   expenses: [] as Expense[],
-  addExpense: ({ description, amount, date }: any) => {},
+  addExpense: ({ description, amount, date }: Omit<Expense, "id">) => {},
   deleteExpense: (id: string) => {},
   updateExpense: (
     id: string,
     { description, amount, date }: Omit<Expense, "id">
   ) => {},
+  isFetching: false,
 });
 
 export const ExpensesProvider = ({
@@ -55,48 +61,50 @@ export const ExpensesProvider = ({
   const DUMMY_EXPENSES: Expense[] = [];
 
   const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
-
-  const STORAGE_KEY = "expenses";
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     const loadExpenses = async () => {
       try {
-        const expenses = await AsyncStorage.getItem(STORAGE_KEY);
-
-        if (expenses === null) {
+        setIsFetching(true);
+        const response = await getExpenses();
+        if (response === null) {
+          setIsFetching(false);
           return;
         }
 
-        const parsedExpenses = JSON.parse(expenses).map((expense: Expense) => ({
-          ...expense,
-          date: new Date(expense.date),
+        const loadedExpenses = Object.keys(response).map((key) => ({
+          id: key,
+          description: response[key].description,
+          amount: response[key].amount,
+          date: new Date(response[key].date),
         }));
 
-        dispatch({ type: "SET_EXPENSES", payload: parsedExpenses });
+        dispatch({ type: "SET_EXPENSES", payload: loadedExpenses });
+
+        setIsFetching(false);
       } catch (e) {
         console.error("Error loading expenses", e);
+        setIsFetching(false);
       }
     };
 
     loadExpenses();
   }, []);
 
-  useEffect(() => {
-    const saveExpenses = async () => {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(expensesState));
-      } catch (e) {
-        console.error("Error saving expenses", e);
-      }
-    };
-    saveExpenses();
-  }, [expensesState]);
-
-  function addExpense(expenseData: Omit<Expense, "id">) {
-    dispatch({ type: "ADD_EXPENSE", payload: expenseData });
+  async function addExpense(expenseData: Omit<Expense, "id">) {
+    try {
+      setIsFetching(true);
+      await createExpense(expenseData);
+      dispatch({ type: "ADD_EXPENSE", payload: expenseData });
+      setIsFetching(false);
+    } catch (e) {
+      console.error("Error adding expense", e);
+      setIsFetching(false);
+    }
   }
 
-  function updateExpense(
+  async function updateExpense(
     id: string,
     expenseData: {
       description: string;
@@ -104,15 +112,27 @@ export const ExpensesProvider = ({
       date: Date;
     }
   ) {
-    dispatch({
-      type: "UPDATE_EXPENSE",
-      payload: { id: id, data: expenseData },
-    });
+    try {
+      setIsFetching(true);
+      await updateExpenseFB(expenseData, id);
+      dispatch({
+        type: "UPDATE_EXPENSE",
+        payload: { id, data: expenseData },
+      });
+      setIsFetching(false);
+    } catch (e) {
+      console.error("Error updating expense", e);
+      setIsFetching(false);
+    }
   }
 
-  function deleteExpense(id: string) {
-    console.log("id", id);
-    dispatch({ type: "DELETE_EXPENSE", payload: id });
+  async function deleteExpense(id: string) {
+    try {
+      await deleteExpenseFB(id);
+      dispatch({ type: "DELETE_EXPENSE", payload: id });
+    } catch (e) {
+      console.error("Error deleting expense", e);
+    }
   }
 
   const value = {
@@ -120,6 +140,7 @@ export const ExpensesProvider = ({
     addExpense,
     deleteExpense,
     updateExpense,
+    isFetching,
   };
 
   return (

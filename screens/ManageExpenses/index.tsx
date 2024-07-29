@@ -130,11 +130,6 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
     navigation.goBack();
   };
 
-  type FormDataProps = {
-    label: string;
-    textInputConfig: TextInputProps;
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Descrição</Text>

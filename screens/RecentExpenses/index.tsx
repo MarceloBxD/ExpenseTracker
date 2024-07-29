@@ -12,7 +12,7 @@ export const RecentExpenses = () => {
   const [recentExpenses, setRecentExpenses] = useState(expenses);
 
   useLayoutEffect(() => {
-    setRecentExpenses(filterRecentExpenses(expenses));
+    expenses.length > 0 && setRecentExpenses(filterRecentExpenses(expenses));
   }, [expenses]);
 
   return (
