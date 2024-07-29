@@ -1,13 +1,6 @@
 import React, { useLayoutEffect, useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { styles } from "./styles";
-
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../App";
 import IconButton from "../../components/UI/IconButton";
@@ -20,93 +13,132 @@ type ManageExpensesProps = NativeStackScreenProps<
   "ManageExpenses"
 >;
 
+const convertToNumber = (value: string) => parseFloat(value.replace(",", "."));
+
+const formatToBRL = (value: string) => {
+  const numberValue = convertToNumber(value);
+  if (isNaN(numberValue) || numberValue <= 0) return value;
+  return numberValue.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
+
+const verifyIfAmountIsABrlCurrency = (value: string) => {
+  const regex = /^(\d{1,3}(\.\d{3})*|(\d+))(\,\d{2})?$/;
+  return regex.test(value);
+};
+
 export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
   const expenseId = route.params?.expenseId;
   const isEditing = !!expenseId;
-
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
-
   const itemToEdit = expenses.find((item) => item.id === expenseId);
-
   const [inputValues, setInputValues] = useState({
-    description: "",
-    amount: "",
+    description: { value: "", isValid: false },
+    amount: { value: "", isValid: false },
   });
+
+  const amountIsValid =
+    !isNaN(convertToNumber(inputValues.amount.value)) &&
+    convertToNumber(inputValues.amount.value) > 0 &&
+    verifyIfAmountIsABrlCurrency(inputValues.amount.value);
+  const descriptionIsValid = inputValues.description.value.trim().length > 0;
+  const formIsInvalid = !amountIsValid || !descriptionIsValid;
 
   useEffect(() => {
     if (isEditing && itemToEdit) {
       setInputValues({
-        description: itemToEdit.description,
-        amount: itemToEdit.amount.toString(),
+        description: { value: itemToEdit.description, isValid: true },
+        amount: {
+          value: itemToEdit.amount.toString().replace(".", ","),
+          isValid: true,
+        },
       });
     }
   }, [isEditing, itemToEdit]);
 
-  function handleInputChange(inputIdentifier: string, inputValue: string) {
-    setInputValues((prev) => {
-      return {
-        ...prev,
-        [inputIdentifier]: inputValue,
-      };
-    });
-  }
+  const handleInputChange = (inputIdentifier: string, inputValue: string) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [inputIdentifier]: {
+        value: inputValue,
+        isValid:
+          inputIdentifier === "description"
+            ? inputValue.trim().length > 0
+            : amountIsValid,
+      },
+    }));
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
       title: isEditing ? "Editar Despesa" : "Adicionar Despesa",
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            console.log("Save Expense");
-          }}
-        >
-          {isEditing ? (
-            <IconButton icon="save-outline" size={24} color="#fff" />
-          ) : (
-            <IconButton icon="add" size={24} color="#fff" />
-          )}
+        <TouchableOpacity onPress={() => console.log("Save Expense")}>
+          <IconButton
+            icon={isEditing ? "save-outline" : "add"}
+            size={24}
+            color="#fff"
+          />
         </TouchableOpacity>
       ),
     });
   }, [navigation, isEditing]);
 
-  function handleDeleteItem(expenseId: string) {
-    console.log("expenseId", expenseId);
-
+  const handleDeleteItem = (expenseId: string) => {
     deleteExpense(expenseId);
     navigation.goBack();
-  }
+  };
 
-  function handleAddExpense() {
-    if (!inputValues.description || !inputValues.amount) return;
+  const handleAddExpense = () => {
+    if (formIsInvalid) {
+      setInputValues((prev) => ({
+        ...prev,
+        description: { ...prev.description, isValid: descriptionIsValid },
+        amount: { ...prev.amount, isValid: amountIsValid },
+      }));
+      return;
+    }
 
     addExpense({
-      description: inputValues.description,
-      amount: +inputValues.amount,
+      description: inputValues.description.value,
+      amount: convertToNumber(inputValues.amount.value),
       date: new Date(),
     });
-    navigation.goBack();
-  }
 
-  function handleUpdateExpense() {
+    navigation.goBack();
+  };
+
+  const handleUpdateExpense = () => {
+    if (formIsInvalid) {
+      setInputValues((prev) => ({
+        ...prev,
+        description: { ...prev.description, isValid: descriptionIsValid },
+        amount: { ...prev.amount, isValid: amountIsValid },
+      }));
+      return;
+    }
+
     updateExpense(expenseId, {
-      description: inputValues.description,
-      amount: +inputValues.amount,
+      description: inputValues.description.value,
+      amount: convertToNumber(inputValues.amount.value),
       date: new Date(),
     });
-    navigation.goBack();
-  }
 
-  function cancelHandler() {
     navigation.goBack();
-  }
+  };
+
+  const cancelHandler = () => {
+    navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Descrição</Text>
       <TextInput
-        value={inputValues.description}
-        onChangeText={handleInputChange.bind(this, "description")}
+        value={inputValues.description.value}
+        onChangeText={(text) => handleInputChange("description", text)}
         multiline
         numberOfLines={4}
         keyboardType="ascii-capable"
@@ -114,11 +146,16 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
       />
       <Text style={styles.label}>Valor</Text>
       <TextInput
-        value={inputValues.amount}
-        onChangeText={handleInputChange.bind(this, "amount")}
+        value={inputValues.amount.value}
+        onChangeText={(text) => handleInputChange("amount", text)}
         keyboardType="numeric"
         style={styles.input}
       />
+      {formIsInvalid && (
+        <Text style={styles.errorText}>
+          Por favor, preencha todos os campos corretamente.
+        </Text>
+      )}
       <View style={styles.buttonsContainer}>
         <Button style={styles.button} mode="flat" onPress={cancelHandler}>
           Cancelar
@@ -133,7 +170,7 @@ export const ManageExpenses = ({ route, navigation }: ManageExpensesProps) => {
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
-            onPress={handleDeleteItem.bind(null, expenseId)}
+            onPress={() => handleDeleteItem(expenseId)}
             icon="trash-outline"
             size={24}
             color={GlobalStyles.colors.error50}

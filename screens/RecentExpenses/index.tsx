@@ -13,7 +13,7 @@ export const RecentExpenses = () => {
 
   useLayoutEffect(() => {
     setRecentExpenses(filterRecentExpenses(expenses));
-  }, []);
+  }, [expenses]);
 
   return (
     <View style={styles.container}>

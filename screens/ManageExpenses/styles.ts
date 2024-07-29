@@ -35,4 +35,8 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 8,
   },
+  errorText: {
+    color: GlobalStyles.colors.error50,
+    marginBottom: 16,
+  },
 });
