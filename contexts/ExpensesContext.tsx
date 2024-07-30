@@ -44,7 +44,7 @@ export const ExpensesProvider = ({
   function expensesReducer(state: Expense[], action: any) {
     switch (action.type) {
       case "ADD_EXPENSE":
-        const id = new Date().toString() + Math.random().toString();
+        const id = Math.random().toString();
         return [...state, { ...action.payload, id }];
       case "DELETE_EXPENSE":
         return state.filter((expense) => expense.id !== action.payload);
@@ -87,6 +87,8 @@ export const ExpensesProvider = ({
           amount: response[key].amount,
           date: new Date(response[key].date),
         }));
+
+        console.log("loaded", loadedExpenses);
 
         dispatch({ type: "SET_EXPENSES", payload: loadedExpenses });
         setErrorOverlay({
@@ -137,7 +139,7 @@ export const ExpensesProvider = ({
       });
       setIsFetching(false);
     } catch (e) {
-      console.error("Error updating expense", e);
+      console.error("Error updating expenses", e);
       setErrorOverlay({
         type: "UPDATE",
         action: () => updateExpense(id, expenseData),

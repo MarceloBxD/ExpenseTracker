@@ -16,7 +16,6 @@ type Props = {
 };
 
 export default function ExpensesOutput({ expenses, expensesPeriod }: Props) {
-  console.log("filtrados", filterRecentExpenses(expenses));
   return (
     <View style={styles.container}>
       <ExpensesSumary expenses={expenses} periodName={expensesPeriod} />

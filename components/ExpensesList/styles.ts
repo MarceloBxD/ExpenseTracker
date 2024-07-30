@@ -15,6 +15,7 @@ export const styles = StyleSheet.create({
   itemDescription: {
     fontSize: 14,
     color: "#fff",
+    maxWidth: 200,
   },
   itemAmount: {
     fontSize: 15,
